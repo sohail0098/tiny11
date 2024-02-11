@@ -128,6 +128,64 @@ if ($isoDownloadProcess.ExitCode -eq 0) {
 	Write-Output "Placing the autounattend.xml file in the install.wim image..."
 	[System.IO.File]::Copy((Get-ChildItem .\tools\autounattend.xml).FullName, ($installImageFolder + "Windows\System32\Sysprep\autounattend.xml"), $true) | Out-Null
 
+	# Hosts File Patches
+	Write-Output "Patching the hosts file in the install.wim image..."
+	$hostsFile = $installImageFolder + "Windows\System32\drivers\etc\hosts"
+	$hosts = Get-Content -Path $hostsFile -Raw
+	$hostnames = @(
+		# Cortana and Live Tiles
+		"business.bing.com",
+		"c.bing.com",
+		"th.bing.com",
+		"c-ring.msedge.net",
+		"fp.msedge.net",
+		"I-ring.msedge.net",
+		"s-ring.msedge.net",
+		"dual-s-ring.msedge.net",
+		"creativecdn.com",
+		"edgeassetservice.azureedge.net",
+		"r.bing.com",
+		"a-ring-fallback.msedge.net",
+		"fp-afd-nocache-ccp.azureedge.net",
+		"prod-azurecdn-akamai-iris.azureedge.net",
+		"widgetcdn.azureedge.net",
+		"widgetservice.azurefd.net",
+		# device metadata, is that important???
+		"dmd.metaservices.microsoft.com",
+		# Diagnostic Data
+		"functional.events.data.microsoft.com",
+		"browser.events.data.msn.com",
+		"self.events.data.microsoft.com",
+		"v10.events.data.microsoft.com",
+		# Windows Error Reporting
+		"telecommand.telemetry.microsoft.com",
+		"www.telecommandsvc.microsoft.com",
+		# Windows Defender SmartScreen
+		"checkappexec.microsoft.com",
+		"ping-edge.smartscreen.microsoft.com",
+		"data-edge.smartscreen.microsoft.com",
+		"nav-edge.smartscreen.microsoft.com",
+		# Microsoft Store analytics
+		"manage.devcenter.microsoft.com",
+		# Windows Spotlight
+		"arc.msn.com",
+		"ris.api.iris.microsoft.com",
+		"api.msn.com",
+		#"assets.msn.com",
+		"c.msn.com",
+		"ntp.msn.com",
+		"srtb.msn.com",
+		#"www.msn.com",
+		"fd.api.iris.microsoft.com",
+		"staticview.msn.com"
+	)
+	foreach ($h in $hostnames) {
+		if (!$hosts.Contains($h)) {
+            $hosts += "127.0.0.1 ${h}`r`n"
+        }
+	}
+	Out-File -FilePath $hostsFile -InputObject $hosts -Encoding ascii | Out-Null
+
 	#Unmount the install.wim image
 	Write-Output "Unmounting the install.wim image..."
 	Dismount-WindowsImage -Path $installImageFolder -Save | Out-Null
