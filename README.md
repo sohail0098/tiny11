@@ -58,7 +58,6 @@ Mail and Calendar,
 Feedback Hub,
 Maps,
 Sound Recorder,
-Your Phone,
 Media Player,
 QuickAssist,
 Internet Explorer,
@@ -76,6 +75,8 @@ Small tweaks:
 * dark theme enabled by default.
 * some file explorer config turned on: show hidden files, show known file extensions, ...
 * taskbar aligned to the left.
+* hosts file with telemetry blocking
+* disabled new context menu
 
 # Known issues:
 
